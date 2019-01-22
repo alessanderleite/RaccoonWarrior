@@ -6,8 +6,14 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
+
+    private MainThread thread;
+
     public GamePanel(Context context) {
         super(context);
+
+        getHolder().addCallback(this);
+        setFocusable(true);
     }
 
     @Override
