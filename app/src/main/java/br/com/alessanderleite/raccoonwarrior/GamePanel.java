@@ -13,6 +13,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         super(context);
 
         getHolder().addCallback(this);
+
+        thread = new MainThread(getHolder(), this);
+
         setFocusable(true);
     }
 
