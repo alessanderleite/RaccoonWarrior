@@ -11,10 +11,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     public static final int WIDTH = 856;
     public static final int HEIGHT = 480;
-
-    private MainThread thread;
-
     private Background bg;
+    private MainThread thread;
 
     public GamePanel(Context context) {
         super(context);
@@ -26,6 +24,16 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         setFocusable(true);
     }
 
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background));
+
+        bg.setVector(-5);
+
+        thread.setRunning(true);
+        thread.start();
+    }
+
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -35,6 +43,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         boolean retry = true;
+
         while (retry) {
             try {
                 thread.setRunning(false);
@@ -45,16 +54,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.mybgimage));
-
-        bg.setVector(-5);
-
-        thread.setRunning(true);
-        thread.start();
-    }
-
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -62,7 +61,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update() {
-
         bg.update();
     }
 
@@ -74,7 +72,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         final float scaleFactorY = getHeight()/(HEIGHT*1.f);
 
         if (canvas != null) {
-            final  int savedState = canvas.save();
+            final int savedState = canvas.save();
             canvas.scale(scaleFactorX, scaleFactorY);
             bg.draw(canvas);
             canvas.restoreToCount(savedState);
