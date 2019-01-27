@@ -12,9 +12,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public static final int WIDTH = 856;
     public static final int HEIGHT = 480;
     public static final int MOVESPEED = -5;
-
-    private Background bg;
     private MainThread thread;
+    private Background bg;
+    private Hero hero;
+
 
     public GamePanel(Context context) {
         super(context);
@@ -25,15 +26,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         setFocusable(true);
     }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background));
-
-        thread.setRunning(true);
-        thread.start();
-    }
-
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -51,17 +43,43 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            retry = false;
         }
     }
 
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.grassbg1));
+
+        hero = new Hero(BitmapFactory.decodeResource(getResources(), R.drawable.hero), 30, 45, 3);
+
+        thread.setRunning(true);
+        thread.start();
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (!hero.getPlaying()) {
+                hero.setPlaying(true);
+            }
+            else {
+                hero.setUp(true);
+            }
+            return true;
+        }
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            hero.setUp(false);
+            return true;
+        }
         return super.onTouchEvent(event);
     }
 
     public void update() {
-        bg.update();
+        if (hero.getPlaying()) {
+            bg.update();
+            hero.update();
+        }
     }
 
     @Override
@@ -75,6 +93,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             final int savedState = canvas.save();
             canvas.scale(scaleFactorX, scaleFactorY);
             bg.draw(canvas);
+            hero.draw(canvas);
             canvas.restoreToCount(savedState);
         }
     }
