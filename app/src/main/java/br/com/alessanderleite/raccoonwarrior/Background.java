@@ -15,7 +15,7 @@ public class Background {
     public void update() {
         x += dx;
 
-        if (x < - GamePanel.WIDTH) {
+        if (x<-GamePanel.WIDTH) {
             x = 0;
         }
     }
