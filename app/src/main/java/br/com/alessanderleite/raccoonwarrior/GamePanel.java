@@ -35,16 +35,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         super(context);
 
         getHolder().addCallback(this);
-
-        thread = new MainThread(getHolder(), this);
-
         setFocusable(true);
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background));
+        thread = new MainThread(getHolder(), this);
 
+        bg = new Background(BitmapFactory.decodeResource(getResources(), R.drawable.background));
         hero = new Hero(BitmapFactory.decodeResource(getResources(), R.drawable.hero), 45, 45, 2);
 
         bullet = new ArrayList<Bullet>();
@@ -73,6 +71,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             try {
                 thread.setRunning(false);
                 thread.join();
+                thread = null;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -202,7 +201,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             for (Obstacle obsb : obstacle) {
                 obsb.draw(canvas);
             }
-            
+
             canvas.restoreToCount(savedState);
         }
     }
