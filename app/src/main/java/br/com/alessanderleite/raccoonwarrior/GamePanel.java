@@ -26,6 +26,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private ArrayList<Enemy> alien;
     private long alienStartTime;
 
+    private ArrayList<Obstacle> obstacle;
+    private long obstacleStartTime;
+
     private MainThread thread;
 
     public GamePanel(Context context) {
@@ -49,6 +52,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         alien = new ArrayList<Enemy>();
         alienStartTime = System.nanoTime();
+
+        obstacle = new ArrayList<Obstacle>();
+        obstacleStartTime = System.nanoTime();
 
         thread.setRunning(true);
         thread.start();
@@ -97,12 +103,27 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             bg.update();
             hero.update();
 
+            //add bot obstacle
+            long obstacleElapsed = (System.nanoTime() - obstacleStartTime)/1000000;
+            if (obstacleElapsed > (15000 - hero.getScore())/4) {
+                obstacle.add(new Obstacle(BitmapFactory.decodeResource(getResources(), R.drawable.obstacle),
+                        WIDTH + 10, HEIGHT - 290 + rand.nextInt(150), 90, 300, hero.getScore(), 1));
+                obstacleStartTime = System.nanoTime();
+            }
+            for (int i = 0; i < obstacle.size(); i++) {
+                obstacle.get(i).update();
+                if (collision(obstacle.get(i), hero)) {
+                    hero.setPlaying(false);
+                    break;
+                }
+            }
+
+            //add bullet on timer
             long bullettimer = (System.nanoTime() - bulletStartTime)/1000000;
             if (bullettimer > (2500 - hero.getScore()/4)) {
                 bullet.add(new Bullet((BitmapFactory.decodeResource(getResources(), R.drawable.bullet)), hero.getX()+60, hero.getY()+24,15,7, 7));
                 bulletStartTime = System.nanoTime();
             }
-
             for (int i = 0; i < bullet.size(); i++) {
                 bullet.get(i).update();
                 if (bullet.get(i).getX()<-10) {
@@ -110,14 +131,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 }
             }
 
+            //add enemy aliens
             long alienElapsed = (System.nanoTime() - alienStartTime)/1000000;
             if (alienElapsed > (10000 - hero.getScore()/4)) {
                 alien.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.enemy),
                         WIDTH + 10, (int)(rand.nextDouble() * (HEIGHT - 50)), 40, 60, hero.getScore(), 3));
                 alienStartTime = System.nanoTime();
             }
-
-            //loop through every alien
             for (int i = 0; i < alien.size(); i++) {
                 alien.get(i).update();
 
@@ -168,14 +188,21 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             bg.draw(canvas);
             hero.draw(canvas);
 
+            //draw bullet versions
             for (Bullet fp : bullet) {
                 fp.draw(canvas);
             }
 
+            //draw enemy
             for (Enemy aln : alien) {
                 aln.draw(canvas);
             }
 
+            //draw bot obstacle
+            for (Obstacle obsb : obstacle) {
+                obsb.draw(canvas);
+            }
+            
             canvas.restoreToCount(savedState);
         }
     }
