@@ -3,6 +3,7 @@ package br.com.alessanderleite.raccoonwarrior;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -116,15 +117,42 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 alienStartTime = System.nanoTime();
             }
 
+            //loop through every alien
             for (int i = 0; i < alien.size(); i++) {
                 alien.get(i).update();
 
+                if (collision(alien.get(i), hero)) {
+                    alien.remove(i);
+
+                    hero.setPlaying(false);
+                    break;
+                }
+
+                //remove alien if it is way off the screen
                 if (alien.get(i).getX() < -100) {
                     alien.remove(i);
                     break;
                 }
+
+                //collision alien with bullet (fire)
+                for (int j = 0; j < bullet.size(); j++) {
+                    if (collision(alien.get(i), bullet.get(j))) {
+                        alien.remove(i);
+                        bullet.remove(j);
+
+                        break;
+                    }
+                    bullet.get(j).update();
+                }
             }
         }
+    }
+
+    public boolean collision(GameObject a, GameObject b) {
+        if (Rect.intersects(a.getRectangle(), b.getRectangle())) {
+            return true;
+        }
+        return false;
     }
 
     @Override
