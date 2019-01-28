@@ -8,8 +8,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
+    private Random rand = new Random();
 
     public static final int WIDTH = 856;
     public static final int HEIGHT = 480;
@@ -19,6 +21,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     private ArrayList<Bullet> bullet;
     private long bulletStartTime;
+
+    private ArrayList<Enemy> alien;
+    private long alienStartTime;
 
     private MainThread thread;
 
@@ -40,6 +45,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         bullet = new ArrayList<Bullet>();
         bulletStartTime = System.nanoTime();
+
+        alien = new ArrayList<Enemy>();
+        alienStartTime = System.nanoTime();
 
         thread.setRunning(true);
         thread.start();
@@ -100,6 +108,22 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     bullet.remove(1);
                 }
             }
+
+            long alienElapsed = (System.nanoTime() - alienStartTime)/1000000;
+            if (alienElapsed > (10000 - hero.getScore()/4)) {
+                alien.add(new Enemy(BitmapFactory.decodeResource(getResources(), R.drawable.enemy),
+                        WIDTH + 10, (int)(rand.nextDouble() * (HEIGHT - 50)), 40, 60, hero.getScore(), 3));
+                alienStartTime = System.nanoTime();
+            }
+
+            for (int i = 0; i < alien.size(); i++) {
+                alien.get(i).update();
+
+                if (alien.get(i).getX() < -100) {
+                    alien.remove(i);
+                    break;
+                }
+            }
         }
     }
 
@@ -119,6 +143,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             for (Bullet fp : bullet) {
                 fp.draw(canvas);
             }
+
+            for (Enemy aln : alien) {
+                aln.draw(canvas);
+            }
+
             canvas.restoreToCount(savedState);
         }
     }
