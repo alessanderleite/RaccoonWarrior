@@ -8,6 +8,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -30,6 +33,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public int heroCoins;
     private long bonusStartTime;
     private ArrayList<Bonus> myCoins;
+
+    MediaPlayer mp;
+    SoundPool coinSound;
+    int coinSoundId;
 
     public static final int MOVESPEED = -5;
     private Background bg;
@@ -60,6 +67,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     public GamePanel(Context context) {
         super(context);
+
+        mp = MediaPlayer.create(context, R.raw.arcademusicloop);
+        coinSound = new SoundPool(99, AudioManager.STREAM_MUSIC, 0);
+        coinSoundId = coinSound.load(context, R.raw.pickedcoin,1);
 
         getHolder().addCallback(this);
         setFocusable(true);
@@ -138,6 +149,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     public void update() {
         if (hero.getPlaying()) {
+            mp.start();
+
             bg.update();
             hero.update();
 
@@ -151,6 +164,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             for (int i = 0; i < myCoins.size(); i++) {
                 myCoins.get(i).update();
                 if (collision(myCoins.get(i), hero)) {
+                    //sound
+                    coinSound.play(coinSoundId,5,5,1,0,1);
+
                     myCoins.remove(i);
                     heroCoins += 1;
                     break;
@@ -196,8 +212,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             }
 
             //add bullet on timer
-            long bullettimer = (System.nanoTime() - bulletStartTime)/1000000;
-            if (bullettimer > (2500 - hero.getScore()/4)) {
+            long bulletTimer = (System.nanoTime() - bulletStartTime)/1000000;
+            if (bulletTimer > (2500 - hero.getScore()/4)) {
                 bullet.add(new Bullet((BitmapFactory.decodeResource(getResources(), R.drawable.bullet)), hero.getX()+60, hero.getY()+24,15,7, 7));
                 bulletStartTime = System.nanoTime();
             }
