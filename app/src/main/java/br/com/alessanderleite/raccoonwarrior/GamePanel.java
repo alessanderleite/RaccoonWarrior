@@ -1,6 +1,7 @@
 package br.com.alessanderleite.raccoonwarrior;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -29,6 +30,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private ArrayList<Obstacle> obstacle;
     private long obstacleStartTime;
 
+    private ArrayList<Borderbottom> botborder;
+    private long borderStartTime;
+
     private MainThread thread;
 
     public GamePanel(Context context) {
@@ -53,6 +57,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         obstacle = new ArrayList<Obstacle>();
         obstacleStartTime = System.nanoTime();
+
+        botborder = new ArrayList<Borderbottom>();
+        borderStartTime = System.nanoTime();
 
         thread.setRunning(true);
         thread.start();
@@ -101,6 +108,25 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (hero.getPlaying()) {
             bg.update();
             hero.update();
+
+            //add bot border behavior
+            long borderElapsed = (System.nanoTime() - borderStartTime)/1000000;
+            if (borderElapsed > 100) {
+                botborder.add(new Borderbottom(BitmapFactory.decodeResource(getResources(), R.drawable.borderbottom),
+                        WIDTH + 10, ((HEIGHT - 80) + rand.nextInt(10))));
+                borderStartTime = System.nanoTime();
+            }
+            for (int i = 0; i < botborder.size(); i++) {
+                botborder.get(i).update();
+
+                if (collision(botborder.get(i), hero)) {
+                    hero.setPlaying(false);
+                    break;
+                }
+                if (botborder.get(i).getX() < 10) {
+                    botborder.remove(i);
+                }
+            }
 
             //add bot obstacle
             long obstacleElapsed = (System.nanoTime() - obstacleStartTime)/1000000;
@@ -200,6 +226,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             //draw bot obstacle
             for (Obstacle obsb : obstacle) {
                 obsb.draw(canvas);
+            }
+
+            //draw bot border
+            for (Borderbottom brb : botborder) {
+                brb.draw(canvas);
             }
 
             canvas.restoreToCount(savedState);
