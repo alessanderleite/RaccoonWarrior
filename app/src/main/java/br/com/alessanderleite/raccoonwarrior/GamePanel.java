@@ -33,6 +33,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private ArrayList<Borderbottom> botborder;
     private long borderStartTime;
 
+    private boolean newGameCreated;
+    private long startReset;
+    private boolean reset;
+    private boolean dissapear;
+    private boolean started;
+
     private MainThread thread;
 
     public GamePanel(Context context) {
@@ -90,11 +96,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (!hero.getPlaying()) {
+            if (!hero.getPlaying() && newGameCreated && reset) {
                 hero.setPlaying(true);
-            }
-            else {
                 hero.setUp(true);
+            }
+            if (hero.getPlaying()){
+                if (!started)started = true;
+                reset = false;
+                hero.setUp(false);
             }
             return true;
         }
@@ -191,6 +200,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     bullet.get(j).update();
                 }
             }
+        }//end if playing
+
+        else {
+            hero.resetDYA();
+            if (!reset) {
+                newGameCreated = false;
+                startReset = System.nanoTime();
+                reset = true;
+                dissapear = true;
+            }
+            long resetElapsed = (System.nanoTime() - startReset)/1000000;
+            if (resetElapsed > 2500 && !newGameCreated) {
+                newGame();
+            }
         }
     }
 
@@ -236,5 +259,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
             canvas.restoreToCount(savedState);
         }
+    }
+
+    public void newGame() {
+        dissapear = false;
+        alien.clear();
+        obstacle.clear();
+        hero.resetDYA();
+        hero.resetScore();
+        hero.setY(HEIGHT/2);
     }
 }
