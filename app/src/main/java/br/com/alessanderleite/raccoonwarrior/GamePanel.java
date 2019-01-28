@@ -26,6 +26,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     Bitmap heartC;
     private int hearts = 3;
 
+    Bitmap coinBonus;
+    public int heroCoins;
+    private long bonusStartTime;
+    private ArrayList<Bonus> myCoins;
+
     public static final int MOVESPEED = -5;
     private Background bg;
     private Hero hero;
@@ -79,6 +84,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         botborder = new ArrayList<Borderbottom>();
         borderStartTime = System.nanoTime();
 
+        myCoins = new ArrayList<Bonus>();
+        bonusStartTime = System.nanoTime();
 
         thread.setRunning(true);
         thread.start();
@@ -133,6 +140,26 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (hero.getPlaying()) {
             bg.update();
             hero.update();
+
+            // add coin behavior
+            long bonustime = (System.nanoTime() - bonusStartTime)/1000000;
+            if (((bonustime > (3000 - hero.getScore()/4)))) {
+                myCoins.add(new Bonus((BitmapFactory.decodeResource(getResources(), R.drawable.coin)),
+                        WIDTH + 1, (int)(rand.nextDouble()*(HEIGHT - 200)), 20, 20, 1));
+                bonusStartTime = System.nanoTime();
+            }
+            for (int i = 0; i < myCoins.size(); i++) {
+                myCoins.get(i).update();
+                if (collision(myCoins.get(i), hero)) {
+                    myCoins.remove(i);
+                    heroCoins += 1;
+                    break;
+                }
+                if (myCoins.get(i).getX() < - 100) {
+                    myCoins.remove(i);
+                    break;
+                }
+            }
 
             //add bot border behavior
             long borderElapsed = (System.nanoTime() - borderStartTime)/1000000;
@@ -287,6 +314,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 brb.draw(canvas);
             }
 
+            //draw coins
+            for (Bonus mb : myCoins) {
+                mb.draw(canvas);
+            }
+
+            //draw the explosion when we lose
             if (started) {
                 explosion.draw(canvas);
             }
@@ -303,8 +336,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         obstacle.clear();
         botborder.clear();
         bullet.clear();
+
         hero.resetDYA();
         hero.resetScore();
+        myCoins.clear();
+
         hero.setY(HEIGHT/2);
 
         newGameCreated = true;
@@ -317,6 +353,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         canvas.drawText("Distance: " + (hero.getScore()*2),10,HEIGHT - 10, paint);
         canvas.drawText("Score: " + best, WIDTH - 215, HEIGHT - 10, paint);
+
+        coinBonus = BitmapFactory.decodeResource(getResources(), R.drawable.coin);
+        canvas.drawBitmap(coinBonus, WIDTH - 130, 0, null);
+        canvas.drawText(" " + heroCoins, WIDTH - 90, 25, paint);
 
         if (hearts == 3) {
             heartA = BitmapFactory.decodeResource(getResources(), R.drawable.lifea);
