@@ -4,7 +4,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -40,6 +43,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private boolean started;
 
     private Explosion explosion;
+    private int best;
 
     private MainThread thread;
 
@@ -203,6 +207,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         alien.remove(i);
                         bullet.remove(j);
 
+                        best += 30;
+
                         break;
                     }
                     bullet.get(j).update();
@@ -278,6 +284,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 explosion.draw(canvas);
             }
 
+            drawText(canvas);
             canvas.restoreToCount(savedState);
         }
     }
@@ -294,5 +301,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         hero.setY(HEIGHT/2);
 
         newGameCreated = true;
+    }
+
+    public void drawText(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        paint.setTextSize(30);
+        paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        canvas.drawText("Distance: " + (hero.getScore()*2),10,HEIGHT - 10, paint);
+        canvas.drawText("Score: " + best, WIDTH - 215, HEIGHT - 10, paint);
     }
 }
