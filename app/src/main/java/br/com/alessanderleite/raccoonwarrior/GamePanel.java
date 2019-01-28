@@ -61,6 +61,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         botborder = new ArrayList<Borderbottom>();
         borderStartTime = System.nanoTime();
 
+
         thread.setRunning(true);
         thread.start();
     }
@@ -112,8 +113,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             //add bot border behavior
             long borderElapsed = (System.nanoTime() - borderStartTime)/1000000;
             if (borderElapsed > 100) {
-                botborder.add(new Borderbottom(BitmapFactory.decodeResource(getResources(), R.drawable.borderbottom),
-                        WIDTH + 10, ((HEIGHT - 80) + rand.nextInt(10))));
+                botborder.add(new Borderbottom(BitmapFactory.decodeResource(getResources(), R.drawable.borderbottom),WIDTH + 10, ((HEIGHT - 80) + rand.nextInt(10))));
+                botborder.add(new Borderbottom(BitmapFactory.decodeResource(getResources(), R.drawable.bordertop), WIDTH + 10, ((HEIGHT - 540) + rand.nextInt(10))));
                 borderStartTime = System.nanoTime();
             }
             for (int i = 0; i < botborder.size(); i++) {
