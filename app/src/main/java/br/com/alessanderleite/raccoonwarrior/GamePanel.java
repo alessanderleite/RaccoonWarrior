@@ -20,6 +20,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     public static final int WIDTH = 856;
     public static final int HEIGHT = 480;
+
+    Bitmap heartA;
+    Bitmap heartB;
+    Bitmap heartC;
+    private int hearts = 3;
+
     public static final int MOVESPEED = -5;
     private Background bg;
     private Hero hero;
@@ -188,7 +194,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 if (collision(alien.get(i), hero)) {
                     alien.remove(i);
 
-                    hero.setPlaying(false);
+                    hearts--;
+//                    hero.setPlaying(false);
                     break;
                 }
 
@@ -310,5 +317,28 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         canvas.drawText("Distance: " + (hero.getScore()*2),10,HEIGHT - 10, paint);
         canvas.drawText("Score: " + best, WIDTH - 215, HEIGHT - 10, paint);
+
+        if (hearts == 3) {
+            heartA = BitmapFactory.decodeResource(getResources(), R.drawable.lifea);
+            canvas.drawBitmap(heartA, WIDTH/2 - 120, 0, null);
+            heartB = BitmapFactory.decodeResource(getResources(), R.drawable.lifeb);
+            canvas.drawBitmap(heartB, WIDTH/2 - 80, 0, null);
+            heartC = BitmapFactory.decodeResource(getResources(), R.drawable.lifec);
+            canvas.drawBitmap(heartC, WIDTH/2 - 40, 0, null);
+        }
+        if (hearts == 2) {
+            heartA = BitmapFactory.decodeResource(getResources(), R.drawable.lifea);
+            canvas.drawBitmap(heartA, WIDTH/2 - 120, 0, null);
+            heartB = BitmapFactory.decodeResource(getResources(), R.drawable.lifeb);
+            canvas.drawBitmap(heartB, WIDTH/2 - 80, 0, null);
+        }
+        if (hearts == 1) {
+            heartA = BitmapFactory.decodeResource(getResources(), R.drawable.lifea);
+            canvas.drawBitmap(heartA, WIDTH/2 - 120, 0, null);
+        }
+        if (hearts == 0) {
+            hero.setPlaying(false);
+            hearts = 3;
+        }
     }
 }
