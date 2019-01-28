@@ -36,8 +36,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private boolean newGameCreated;
     private long startReset;
     private boolean reset;
-    private boolean dissapear;
+    private boolean disappear;
     private boolean started;
+
+    private Explosion explosion;
 
     private MainThread thread;
 
@@ -195,6 +197,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 //collision alien with bullet (fire)
                 for (int j = 0; j < bullet.size(); j++) {
                     if (collision(alien.get(i), bullet.get(j))) {
+                        explosion = new Explosion(BitmapFactory.decodeResource(getResources(), R.drawable.explosion), alien.get(i).getX(),
+                                alien.get(i).getY(), 100, 100, 15);
+
                         alien.remove(i);
                         bullet.remove(j);
 
@@ -207,12 +212,18 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         else {
             hero.resetDYA();
+
             if (!reset) {
                 newGameCreated = false;
                 startReset = System.nanoTime();
                 reset = true;
-                dissapear = true;
+                disappear = true;
+
+                explosion = new Explosion(BitmapFactory.decodeResource(getResources(), R.drawable.explosion), hero.getX(),
+                        hero.getY(), 100,100,15);
             }
+            explosion.update();
+
             long resetElapsed = (System.nanoTime() - startReset)/1000000;
             if (resetElapsed > 2500 && !newGameCreated) {
                 newGame();
@@ -238,7 +249,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             final int savedState = canvas.save();
             canvas.scale(scaleFactorX, scaleFactorY);
             bg.draw(canvas);
-            if (!dissapear) {
+            if (!disappear) {
                 hero.draw(canvas);
             }
 
@@ -263,13 +274,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 brb.draw(canvas);
             }
 
+            if (started) {
+                explosion.draw(canvas);
+            }
+
             canvas.restoreToCount(savedState);
         }
     }
 
     public void newGame() {
 
-        dissapear = false;
+        disappear = false;
         alien.clear();
         obstacle.clear();
         botborder.clear();
