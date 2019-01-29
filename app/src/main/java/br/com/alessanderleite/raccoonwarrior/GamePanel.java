@@ -38,6 +38,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     SoundPool coinSound;
     int coinSoundId;
 
+    Bitmap myPanel;
+
     public static final int MOVESPEED = -5;
     private Background bg;
     private Hero hero;
@@ -395,6 +397,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (hearts == 0) {
             hero.setPlaying(false);
             hearts = 3;
+        }
+        //intro panel
+        if (!hero.getPlaying() && newGameCreated && reset) {
+            Paint paint1 = new Paint();
+            paint1.setTextSize(25);
+            paint1.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+
+            myPanel = BitmapFactory.decodeResource(getResources(), R.drawable.panel);
+            canvas.drawBitmap(myPanel, WIDTH/2-210, HEIGHT/2-120, null);
+            canvas.drawText("PRESS TO START", WIDTH/2-100, HEIGHT/2-70, paint1);
+            canvas.drawText("PRESS AND HOLD TO GO UP", WIDTH/2-90, HEIGHT/2-20, paint1);
+            canvas.drawText("RELEASE TO GO DOWN", WIDTH/2-90, HEIGHT/2+20, paint1);
+
+
         }
     }
 }
